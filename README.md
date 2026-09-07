@@ -106,4 +106,10 @@ This query returns the number of task rows in PostgreSQL. You can also use Docke
 docker compose exec db psql -U postgres -d tasks -c "SELECT * FROM tasks;"
 ```
 
+### PostgreSQL database screenshot
+
+The following `psql` result was captured from the running Docker Compose Postgres container. It shows the automatically created `tasks` table and its stored task rows.
+
+![PostgreSQL tasks query result](assets/postgres-query-result.svg)
+
 The API endpoint tests from Weeks 2 and 3 still pass because the routes did not change; only the storage layer changed from memory, to SQLite, to Postgres.

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="610" viewBox="0 0 1100 610" role="img" aria-labelledby="title description">
+  <title id="title">PostgreSQL task database query result</title>
+  <desc id="description">A psql result from the Docker Compose PostgreSQL container showing the tasks table and four task rows.</desc>
+  <rect width="1100" height="610" fill="#0d1117"/>
+  <rect x="24" y="24" width="1052" height="562" rx="12" fill="#161b22" stroke="#30363d"/>
+  <circle cx="54" cy="54" r="8" fill="#ff5f57"/><circle cx="80" cy="54" r="8" fill="#febc2e"/><circle cx="106" cy="54" r="8" fill="#28c840"/>
+  <text x="135" y="60" fill="#c9d1d9" font-family="Consolas, monospace" font-size="20">PostgreSQL in Docker Compose - psql query</text>
+  <text x="55" y="110" fill="#8b949e" font-family="Consolas, monospace" font-size="17">$ docker compose exec -T db psql -U postgres -d tasks -c "\dt"</text>
+  <text x="55" y="150" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17">         List of relations</text>
+  <text x="55" y="180" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17"> Schema | Name  | Type  |  Owner</text>
+  <text x="55" y="210" fill="#8b949e" font-family="Consolas, monospace" font-size="17">--------+-------+-------+----------</text>
+  <text x="55" y="240" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17"> public | tasks | table | postgres</text>
+  <text x="55" y="280" fill="#8b949e" font-family="Consolas, monospace" font-size="17">$ docker compose exec -T db psql -U postgres -d tasks -c "SELECT id, title, done FROM tasks ORDER BY id;"</text>
+  <text x="55" y="320" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17"> id |           title           | done</text>
+  <text x="55" y="350" fill="#8b949e" font-family="Consolas, monospace" font-size="17">----+---------------------------+------</text>
+  <text x="55" y="380" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17">  1 | Learn Express             | f</text>
+  <text x="55" y="410" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17">  2 | Build CRUD API            | f</text>
+  <text x="55" y="440" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17">  3 | Document API with Swagger | f</text>
+  <text x="55" y="470" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17">  4 | Compose persistence check | f</text>
+  <text x="55" y="510" fill="#c9d1d9" font-family="Consolas, monospace" font-size="17">(4 rows)</text>
+  <text x="55" y="555" fill="#58a6ff" font-family="Consolas, monospace" font-size="15">Verified against the running Postgres container.</text>
+</svg>
