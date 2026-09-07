@@ -82,7 +82,7 @@ app.post("/tasks", (req, res) => {
 
 app.put("/tasks/:id", (req, res) => {
   const id = Number(req.params.id);
-  const task = tasks.find((item) => item.id === id);
+  const task = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
 
   if (!task) {
     return res.status(404).json({ error: `Task ${req.params.id} not found` });
@@ -104,21 +104,25 @@ app.put("/tasks/:id", (req, res) => {
     return res.status(400).json({ error: "Done must be a boolean" });
   }
 
-  if (hasTitle) task.title = title.trim();
-  if (hasDone) task.done = done;
+  const updatedTitle = hasTitle ? title.trim() : task.title;
+  const updatedDone = hasDone ? Number(done) : task.done;
+  db
+    .prepare("UPDATE tasks SET title = ?, done = ? WHERE id = ?")
+    .run(updatedTitle, updatedDone, id);
 
-  res.json(task);
+  const updatedTask = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
+
+  res.json(formatTask(updatedTask));
 });
 
 app.delete("/tasks/:id", (req, res) => {
   const id = Number(req.params.id);
-  const taskIndex = tasks.findIndex((item) => item.id === id);
+  const result = db.prepare("DELETE FROM tasks WHERE id = ?").run(id);
 
-  if (taskIndex === -1) {
+  if (result.changes === 0) {
     return res.status(404).json({ error: `Task ${req.params.id} not found` });
   }
 
-  tasks.splice(taskIndex, 1);
   res.status(204).send();
 });
 
