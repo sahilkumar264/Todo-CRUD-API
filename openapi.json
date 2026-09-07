@@ -1,0 +1,65 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Task API",
+    "version": "1.0",
+    "description": "A simple in-memory CRUD API for tasks."
+  },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "paths": {
+    "/tasks": {
+      "get": {
+        "summary": "Get all tasks",
+        "responses": {
+          "200": { "description": "Task list", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } } } } }
+        }
+      },
+      "post": {
+        "summary": "Create a task",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateTask" } } } },
+        "responses": {
+          "201": { "description": "Created task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/tasks/{id}": {
+      "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "Task ID" }],
+      "get": {
+        "summary": "Get one task",
+        "responses": {
+          "200": { "description": "Task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "summary": "Update a task",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTask" } } } },
+        "responses": {
+          "200": { "description": "Updated task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a task",
+        "responses": {
+          "204": { "description": "Task deleted" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Task": { "type": "object", "required": ["id", "title", "done"], "properties": { "id": { "type": "integer", "example": 1 }, "title": { "type": "string", "example": "Learn Express" }, "done": { "type": "boolean", "example": false } } },
+      "CreateTask": { "type": "object", "required": ["title"], "properties": { "title": { "type": "string", "minLength": 1, "example": "Buy milk" } } },
+      "UpdateTask": { "type": "object", "minProperties": 1, "properties": { "title": { "type": "string", "minLength": 1, "example": "New title" }, "done": { "type": "boolean", "example": true } } },
+      "Error": { "type": "object", "properties": { "error": { "type": "string", "example": "Task 99 not found" } } }
+    },
+    "responses": {
+      "BadRequest": { "description": "Invalid request", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "NotFound": { "description": "Task not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+    }
+  }
+}
