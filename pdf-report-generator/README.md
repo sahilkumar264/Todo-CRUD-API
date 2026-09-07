@@ -6,6 +6,8 @@ This standalone Week 4/A8 project turns the 60 validated Books to Scrape records
 
 The project reuses `../scraper/output/books.json`, then seeds a local SQLite `books` table with title, price, rating, and product URL.
 
+The seed script deletes old rows first, so running it twice still leaves exactly 60 records.
+
 ## Setup
 
 ```bash
