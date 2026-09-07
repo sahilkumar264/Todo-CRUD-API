@@ -20,6 +20,20 @@ SELECT rating, COUNT(*) AS count FROM books GROUP BY rating ORDER BY rating DESC
 
 The report is rendered by headless Chromium from HTML. Print CSS uses a repeating `<thead>` and `tr { break-inside: avoid; }`, so the long catalogue table remains readable across pages.
 
+## Generate and download
+
+With the API running at port 3100:
+
+```bash
+curl -i -X POST http://localhost:3100/reports
+# HTTP/1.1 201 Created
+# {"id":1,"created_at":"...","file":"/reports/1/file"}
+
+curl -o my-bookstore-report.pdf http://localhost:3100/reports/1/file
+```
+
+The generation endpoint intentionally waits a few seconds for Chromium to create the PDF. For a large report or many users, I would move rendering to a background job; keeping it in the request is appropriate for this assignment's small dataset.
+
 ## Setup
 
 ```bash
