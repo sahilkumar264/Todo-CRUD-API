@@ -58,6 +58,31 @@ app.post("/auth/login", async (req, res) => {
   });
 });
 
+app.get("/public/info", (req, res) => {
+  res.json({ message: "Welcome stranger! This info is public." });
+});
+
+function requirePresentedToken(req, res, next) {
+  const authorization = req.headers.authorization;
+
+  if (!authorization || !authorization.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Access token required" });
+  }
+
+  const token = authorization.slice("Bearer ".length).trim();
+
+  if (!token) {
+    return res.status(401).json({ error: "Access token required" });
+  }
+
+  req.accessToken = token;
+  next();
+}
+
+app.get("/protected/profile", requirePresentedToken, (req, res) => {
+  res.json({ message: "A token was provided." });
+});
+
 app.get("/tasks", async (req, res) => {
   const result = await pool.query("SELECT * FROM tasks ORDER BY id");
   res.json(result.rows);
