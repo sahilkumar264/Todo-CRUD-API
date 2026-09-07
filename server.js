@@ -1,41 +1,14 @@
 const express = require("express");
-const Database = require("better-sqlite3");
 const swaggerUi = require("swagger-ui-express");
 const openapiSpecification = require("./openapi.json");
 require("dotenv").config();
-const { initializeDatabase } = require("./taskRepository");
+const { initializeDatabase, pool } = require("./taskRepository");
 
 const app = express();
 const PORT = 3000;
-const db = new Database("tasks.db");
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS tasks (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    done INTEGER NOT NULL
-  )
-`);
-
-const taskCount = db.prepare("SELECT COUNT(*) AS count FROM tasks").get();
-
-if (taskCount.count === 0) {
-  const seedTask = db.prepare("INSERT INTO tasks (title, done) VALUES (?, ?)");
-  const seedTasks = db.transaction(() => {
-    seedTask.run("Learn Express", 0);
-    seedTask.run("Build CRUD API", 0);
-    seedTask.run("Document API with Swagger", 0);
-  });
-
-  seedTasks();
-}
 
 app.use(express.json());
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiSpecification));
-
-function formatTask(task) {
-  return { ...task, done: Boolean(task.done) };
-}
 
 app.get("/", (req, res) => {
   res.json({
@@ -49,20 +22,21 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.get("/tasks", (req, res) => {
-  const tasks = db.prepare("SELECT * FROM tasks").all().map(formatTask);
-  res.json(tasks);
+app.get("/tasks", async (req, res) => {
+  const result = await pool.query("SELECT * FROM tasks ORDER BY id");
+  res.json(result.rows);
 });
 
-app.get("/tasks/:id", (req, res) => {
+app.get("/tasks/:id", async (req, res) => {
   const id = Number(req.params.id);
-  const task = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
+  const result = await pool.query("SELECT * FROM tasks WHERE id = $1", [id]);
+  const task = result.rows[0];
 
   if (!task) {
     return res.status(404).json({ error: `Task ${req.params.id} not found` });
   }
 
-  res.json(formatTask(task));
+  res.json(task);
 });
 
 app.post("/tasks", (req, res) => {
