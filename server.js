@@ -31,11 +31,9 @@ if (taskCount.count === 0) {
 app.use(express.json());
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
-const tasks = [
-  { id: 1, title: "Learn Express", done: false },
-  { id: 2, title: "Build CRUD API", done: false },
-  { id: 3, title: "Document API with Swagger", done: false }
-];
+function formatTask(task) {
+  return { ...task, done: Boolean(task.done) };
+}
 
 app.get("/", (req, res) => {
   res.json({
@@ -50,18 +48,19 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/tasks", (req, res) => {
+  const tasks = db.prepare("SELECT * FROM tasks").all().map(formatTask);
   res.json(tasks);
 });
 
 app.get("/tasks/:id", (req, res) => {
   const id = Number(req.params.id);
-  const task = tasks.find((item) => item.id === id);
+  const task = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
 
   if (!task) {
     return res.status(404).json({ error: `Task ${req.params.id} not found` });
   }
 
-  res.json(task);
+  res.json(formatTask(task));
 });
 
 app.post("/tasks", (req, res) => {
