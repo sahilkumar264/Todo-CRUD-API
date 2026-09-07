@@ -1,6 +1,6 @@
 # Todo-CRUD-API
 
-A simple beginner-friendly CRUD API for managing tasks. It uses Node.js, Express, and SQLite so tasks survive server restarts.
+A beginner-friendly CRUD API for managing tasks. It uses Node.js, Express, PostgreSQL, and Docker Compose so tasks survive full stack restarts.
 
 ## Features
 
@@ -8,7 +8,7 @@ A simple beginner-friendly CRUD API for managing tasks. It uses Node.js, Express
 - Create, read, update, and delete tasks
 - Input validation and clear JSON errors
 - Interactive Swagger UI documentation
-- SQLite persistence with automatic database setup
+- PostgreSQL persistence with Docker Compose
 
 ## Technology stack
 
@@ -17,7 +17,8 @@ A simple beginner-friendly CRUD API for managing tasks. It uses Node.js, Express
 - JavaScript
 - swagger-ui-express
 - OpenAPI 3.0
-- SQLite via better-sqlite3
+- PostgreSQL via node-postgres (`pg`)
+- Docker and Docker Compose
 
 ## Installation
 
@@ -25,13 +26,22 @@ A simple beginner-friendly CRUD API for managing tasks. It uses Node.js, Express
 npm install
 ```
 
-## Start the server
+## Run the complete stack
 
 ```bash
-node server.js
+cp .env.example .env
+docker compose up
 ```
 
-Server URL: <http://localhost:3000>
+Docker Compose starts both the API and PostgreSQL database with one command. The API is available at <http://localhost:3000>.
+
+To stop the stack, press `Ctrl+C` and run:
+
+```bash
+docker compose down
+```
+
+The Postgres volume keeps task data even after `docker compose down` and `docker compose up`.
 
 Swagger UI: <http://localhost:3000/docs>
 
@@ -76,20 +86,24 @@ Content-Type: application/json; charset=utf-8
 
 The Swagger UI is available at <http://localhost:3000/docs> and displays the complete task CRUD API. It includes **Try it out** controls that send requests directly to the local Express server.
 
-## SQLite database
+## PostgreSQL database and environment variables
 
-SQLite was chosen because it is a single local file, needs no separate database server, and keeps task data after the API restarts. The database is stored in `tasks.db` at the project root.
+PostgreSQL runs as a separate Docker container. The API connects using `DATABASE_URL`, and the Docker setup uses `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` from `.env`.
 
-`tasks.db` is ignored by Git so every clone starts fresh. When the server starts, it automatically creates the database and `tasks` table if they are missing, then seeds the three example tasks only when the table is empty.
+`.env` is Git-ignored to prevent database credentials from being committed. Copy `.env.example` to `.env` before running the project. When the API starts, it automatically creates the `tasks` table and seeds the three example tasks only when the table is empty.
 
-## SQL exploration
+## Inspect the database
 
-During the SQLite exercise, this query returned the number of tasks currently stored in the database:
+Connect DBeaver to `localhost:5432` with the values from `.env`, then run:
 
 ```sql
 SELECT COUNT(*) FROM tasks;
 ```
 
-It returned `4` before the update-and-delete exercise. The complete Stage 4 query record is in [SQL_EXPLORATION.md](SQL_EXPLORATION.md).
+This query returns the number of task rows in PostgreSQL. You can also use Docker directly:
 
-The API endpoint tests from Week 2 still pass because SQLite changes only the storage layer; the API request and response shapes remain the same.
+```bash
+docker compose exec db psql -U postgres -d tasks -c "SELECT * FROM tasks;"
+```
+
+The API endpoint tests from Weeks 2 and 3 still pass because the routes did not change; only the storage layer changed from memory, to SQLite, to Postgres.
