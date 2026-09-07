@@ -1,65 +1,40 @@
 {
   "openapi": "3.0.3",
-  "info": {
-    "title": "Task API",
-    "version": "1.0",
-    "description": "A simple in-memory CRUD API for tasks."
-  },
+  "info": { "title": "Task API with Supabase Auth", "version": "1.0", "description": "A Dockerized PostgreSQL task API with Supabase authentication." },
   "servers": [{ "url": "http://localhost:3000" }],
   "paths": {
     "/tasks": {
-      "get": {
-        "summary": "Get all tasks",
-        "responses": {
-          "200": { "description": "Task list", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } } } } }
-        }
-      },
-      "post": {
-        "summary": "Create a task",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateTask" } } } },
-        "responses": {
-          "201": { "description": "Created task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } },
-          "400": { "$ref": "#/components/responses/BadRequest" }
-        }
-      }
+      "get": { "summary": "Get all tasks", "responses": { "200": { "description": "Task list", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } } } } } } },
+      "post": { "summary": "Create a task", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateTask" } } } }, "responses": { "201": { "description": "Created task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } }, "400": { "$ref": "#/components/responses/BadRequest" } } }
     },
     "/tasks/{id}": {
-      "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "Task ID" }],
-      "get": {
-        "summary": "Get one task",
-        "responses": {
-          "200": { "description": "Task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "put": {
-        "summary": "Update a task",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTask" } } } },
-        "responses": {
-          "200": { "description": "Updated task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } },
-          "400": { "$ref": "#/components/responses/BadRequest" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "summary": "Delete a task",
-        "responses": {
-          "204": { "description": "Task deleted" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    }
+      "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+      "get": { "summary": "Get one task", "responses": { "200": { "description": "Task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } }, "404": { "$ref": "#/components/responses/NotFound" } } },
+      "put": { "summary": "Update a task", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTask" } } } }, "responses": { "200": { "description": "Updated task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } }, "400": { "$ref": "#/components/responses/BadRequest" }, "404": { "$ref": "#/components/responses/NotFound" } } },
+      "delete": { "summary": "Delete a task", "responses": { "204": { "description": "Task deleted" }, "404": { "$ref": "#/components/responses/NotFound" } } }
+    },
+    "/auth/signup": { "post": { "summary": "Create a Supabase account", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } } }, "responses": { "201": { "description": "Created user" }, "400": { "$ref": "#/components/responses/BadRequest" } } } },
+    "/auth/login": { "post": { "summary": "Log in and receive tokens", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } } }, "responses": { "200": { "description": "Access and refresh tokens", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tokens" } } } }, "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" } } } },
+    "/auth/logout": { "post": { "summary": "Log out", "security": [{ "bearerAuth": [] }], "responses": { "204": { "description": "Logged out" }, "401": { "$ref": "#/components/responses/Unauthorized" } } } },
+    "/public/info": { "get": { "summary": "Get public information", "responses": { "200": { "description": "Public information" } } } },
+    "/protected/profile": { "get": { "summary": "Get the authenticated user's profile", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Safe user metadata", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Profile" } } } }, "401": { "$ref": "#/components/responses/Unauthorized" } } } },
+    "/protected/dashboard": { "get": { "summary": "Get the authenticated user's dashboard", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Dashboard message" }, "401": { "$ref": "#/components/responses/Unauthorized" } } } }
   },
   "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } },
     "schemas": {
-      "Task": { "type": "object", "required": ["id", "title", "done"], "properties": { "id": { "type": "integer", "example": 1 }, "title": { "type": "string", "example": "Learn Express" }, "done": { "type": "boolean", "example": false } } },
-      "CreateTask": { "type": "object", "required": ["title"], "properties": { "title": { "type": "string", "minLength": 1, "example": "Buy milk" } } },
-      "UpdateTask": { "type": "object", "minProperties": 1, "properties": { "title": { "type": "string", "minLength": 1, "example": "New title" }, "done": { "type": "boolean", "example": true } } },
-      "Error": { "type": "object", "properties": { "error": { "type": "string", "example": "Task 99 not found" } } }
+      "Task": { "type": "object", "required": ["id", "title", "done"], "properties": { "id": { "type": "integer" }, "title": { "type": "string" }, "done": { "type": "boolean" } } },
+      "CreateTask": { "type": "object", "required": ["title"], "properties": { "title": { "type": "string", "minLength": 1 } } },
+      "UpdateTask": { "type": "object", "minProperties": 1, "properties": { "title": { "type": "string", "minLength": 1 }, "done": { "type": "boolean" } } },
+      "Credentials": { "type": "object", "required": ["email", "password"], "properties": { "email": { "type": "string", "format": "email", "example": "user@example.com" }, "password": { "type": "string", "format": "password", "example": "password123" } } },
+      "Tokens": { "type": "object", "properties": { "access_token": { "type": "string" }, "refresh_token": { "type": "string" } } },
+      "Profile": { "type": "object", "properties": { "id": { "type": "string" }, "email": { "type": "string" }, "created_at": { "type": "string", "format": "date-time" } } },
+      "Error": { "type": "object", "properties": { "error": { "type": "string" } } }
     },
     "responses": {
       "BadRequest": { "description": "Invalid request", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-      "NotFound": { "description": "Task not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+      "NotFound": { "description": "Task not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Unauthorized": { "description": "Authentication failed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
     }
   }
 }
