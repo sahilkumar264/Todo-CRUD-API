@@ -70,11 +70,14 @@ app.post("/tasks", (req, res) => {
     return res.status(400).json({ error: "Title is required and must be a non-empty string" });
   }
 
-  const nextId = tasks.length === 0 ? 1 : Math.max(...tasks.map((task) => task.id)) + 1;
-  const newTask = { id: nextId, title: title.trim(), done: false };
-  tasks.push(newTask);
+  const result = db
+    .prepare("INSERT INTO tasks (title, done) VALUES (?, ?)")
+    .run(title.trim(), 0);
+  const newTask = db
+    .prepare("SELECT * FROM tasks WHERE id = ?")
+    .get(result.lastInsertRowid);
 
-  res.status(201).json(newTask);
+  res.status(201).json(formatTask(newTask));
 });
 
 app.put("/tasks/:id", (req, res) => {
