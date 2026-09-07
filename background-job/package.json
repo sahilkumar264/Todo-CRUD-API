@@ -1,0 +1,14 @@
+{
+  "name": "flyrank-a7-background-job",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev:inngest": "npx inngest-cli@latest dev -u http://localhost:3200/api/inngest"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "inngest": "^3.43.1"
+  }
+}
