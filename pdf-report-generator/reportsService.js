@@ -34,6 +34,21 @@ export function findReport(id) {
   return report || null;
 }
 
+export function findReportCreatedToday() {
+  const db = openDatabase();
+  const today = new Date().toISOString().slice(0, 10);
+  const report = db.prepare("SELECT id, path, created_at FROM reports WHERE created_at LIKE ? ORDER BY id DESC LIMIT 1").get(`${today}%`);
+  db.close();
+  return report || null;
+}
+
+export function listReports() {
+  const db = openDatabase();
+  const reports = db.prepare("SELECT id, path, created_at FROM reports ORDER BY id DESC").all();
+  db.close();
+  return reports;
+}
+
 export function publicReport(report) {
   return { id: report.id, created_at: report.created_at, file: `/reports/${report.id}/file` };
 }

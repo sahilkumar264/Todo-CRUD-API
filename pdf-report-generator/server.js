@@ -1,5 +1,5 @@
 import express from "express";
-import { createReport, findReport, publicReport } from "./reportsService.js";
+import { createReport, findReport, findReportCreatedToday, listReports, publicReport } from "./reportsService.js";
 
 const app = express();
 const port = process.env.PORT || 3100;
@@ -7,12 +7,18 @@ app.use(express.json());
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
-app.post("/reports", async (_req, res, next) => {
+app.post("/reports", async (req, res, next) => {
   try {
+    if (req.body?.force !== true) {
+      const existing = findReportCreatedToday();
+      if (existing) return res.json(publicReport(existing));
+    }
     const report = await createReport();
     res.status(201).json(publicReport(report));
   } catch (error) { next(error); }
 });
+
+app.get("/reports", (_req, res) => res.json(listReports().map(publicReport)));
 
 app.get("/reports/:id", (req, res) => {
   const report = findReport(Number(req.params.id));

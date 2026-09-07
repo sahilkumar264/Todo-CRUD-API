@@ -34,6 +34,19 @@ curl -o my-bookstore-report.pdf http://localhost:3100/reports/1/file
 
 The generation endpoint intentionally waits a few seconds for Chromium to create the PDF. For a large report or many users, I would move rendering to a background job; keeping it in the request is appropriate for this assignment's small dataset.
 
+## Idempotency
+
+The first `POST /reports` on a day creates one PDF. A second normal request on the same day returns `200` with the same report ID and file link, protecting against a double-click (and, in a real system, avoids duplicate work or duplicate emails). Send `{ "force": true }` to create a fresh report deliberately.
+
+```bash
+curl -X POST http://localhost:3100/reports -H "Content-Type: application/json" -d '{"force":true}'
+curl http://localhost:3100/reports
+```
+
+## Generated PDF preview
+
+![First page of generated bookstore report](assets/report-page-1.png)
+
 ## Setup
 
 ```bash
