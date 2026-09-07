@@ -93,6 +93,20 @@ app.get("/protected/profile", requirePresentedToken, (req, res) => {
   });
 });
 
+app.get("/protected/dashboard", requirePresentedToken, (req, res) => {
+  res.json({ message: `Welcome to your dashboard, ${req.user.email}.` });
+});
+
+app.post("/auth/logout", requirePresentedToken, async (req, res) => {
+  const { error } = await supabase.auth.signOut({ scope: "local" });
+
+  if (error) {
+    return res.status(401).json({ error: "Could not log out" });
+  }
+
+  res.status(204).send();
+});
+
 app.get("/tasks", async (req, res) => {
   const result = await pool.query("SELECT * FROM tasks ORDER BY id");
   res.json(result.rows);
