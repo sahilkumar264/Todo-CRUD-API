@@ -4,6 +4,8 @@ const openapiSpecification = require("./openapi.json");
 require("dotenv").config();
 const { initializeDatabase, pool } = require("./taskRepository");
 const supabase = require("./supabaseClient");
+const { TriageInputSchema } = require("./src/llm/schema");
+const { LlmGatewayError, triageText } = require("./src/llm/triage");
 
 const app = express();
 const PORT = 3000;
@@ -21,6 +23,32 @@ app.get("/", (req, res) => {
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
+});
+
+app.post("/triage", async (req, res) => {
+  const input = TriageInputSchema.safeParse(req.body);
+
+  if (!input.success) {
+    const message = input.error.issues
+      .map((issue) => `${issue.path.join(".") || "request"}: ${issue.message}`)
+      .join("; ");
+    return res.status(400).json({ error: message });
+  }
+
+  try {
+    const result = await triageText(input.data.text);
+    if (result.kind === "unprocessable") return res.status(422).json({ error: result.error });
+    return res.json(result.output);
+  } catch (error) {
+    if (error instanceof LlmGatewayError && error.timeout) {
+      return res.status(504).json({ error: "The LLM provider timed out after 30 seconds." });
+    }
+    if (error instanceof LlmGatewayError) {
+      return res.status(502).json({ error: "The LLM provider could not process this request." });
+    }
+    console.error("Unexpected triage error:", error.message);
+    return res.status(500).json({ error: "Could not triage this message." });
+  }
 });
 
 app.post("/auth/signup", async (req, res) => {
@@ -194,7 +222,11 @@ async function startServer() {
   });
 }
 
-startServer().catch((error) => {
-  console.error("Could not connect to PostgreSQL:", error.message);
-  process.exit(1);
-});
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error("Could not connect to PostgreSQL:", error.message);
+    process.exit(1);
+  });
+}
+
+module.exports = app;

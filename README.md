@@ -131,3 +131,52 @@ The API endpoint tests from Weeks 2 and 3 still pass because the routes did not 
 ## Week 5: polite scraper
 
 The independent Week 5 assignment lives in [`scraper/`](scraper/). It is a Node.js scraper for the Books to Scrape practice sandbox: it caches all HTML, uses an identifying user-agent, waits at least 500 ms between live requests, validates records with Zod, and writes an honest run report. See [the scraper README](scraper/README.md) for its one-command run instructions and the deliberate broken-page test.
+
+## Week 7: LLM support-message triage
+
+`POST /triage` turns one messy support message into a small, predictable JSON object. It validates input before any provider call; validates every model answer with a closed Zod schema; repairs a malformed answer once; and returns `422` rather than raw model text if it still cannot obtain a valid result.
+
+### Try it safely with stub mode
+
+Set `LLM_STUB=1` in `.env`, then run the normal API stack. Stub mode does not call a model or consume quota.
+
+```bash
+curl -X POST http://localhost:3000/triage -H "Content-Type: application/json" -d '{"text":"I was charged twice for my subscription."}'
+```
+
+Response:
+
+```json
+{
+  "category": "billing",
+  "urgency": "normal",
+  "confidence": 0.9,
+  "reason": "The message concerns an account charge or payment."
+}
+```
+
+The job card is in [JOB-CARD.md](JOB-CARD.md). The prompt is a versioned file at `prompts/triage-v1.md`, and the eight labelled cases are in `evals/cases.json`.
+
+### Provider configuration
+
+The same OpenAI-compatible client works with either local Ollama or hosted OpenRouter by changing only these environment variables:
+
+```dotenv
+LLM_BASE_URL=http://localhost:11434/v1/
+LLM_API_KEY=ollama
+LLM_MODEL=gemma3:1b
+```
+
+For OpenRouter, set `LLM_BASE_URL=https://openrouter.ai/api/v1`, add your own `LLM_API_KEY`, and use `LLM_MODEL=openrouter/free`. Keep real keys only in the ignored `.env` file. Set `LLM_STUB=0` for a real call, or `LLM_ENABLED=false` for the deterministic kill-switch fallback.
+
+The endpoint has an explicit 30-second timeout. The SDK's automatic retries are disabled; this project retries only timeouts, `429`, and `5xx` responses with exponential backoff and jitter, never `400`, `401`, or `403`. Each model call writes a structured token/cost log line to standard output. Invalid second responses are quarantined to the ignored `logs/quarantine.jsonl` file.
+
+### Eval result
+
+On 2026-09-07, prompt version `triage-v1` scored **8/8 (100%)** on the included stub-mode evaluation cases. Run the server with `LLM_STUB=1`, then use:
+
+```bash
+npm run eval:triage
+```
+
+One real model call logs its prompt and completion token counts, model name, duration, and repair count. Exact cost depends on provider/model pricing; at 10,000 requests/day the main cost drivers are input/output tokens and any repair calls. A production follow-up would add a larger live-provider eval set and a request cache for repeated messages.

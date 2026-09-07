@@ -17,6 +17,7 @@
     "/auth/login": { "post": { "summary": "Log in and receive tokens", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } } }, "responses": { "200": { "description": "Access and refresh tokens", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tokens" } } } }, "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" } } } },
     "/auth/logout": { "post": { "summary": "Log out", "security": [{ "bearerAuth": [] }], "responses": { "204": { "description": "Logged out" }, "401": { "$ref": "#/components/responses/Unauthorized" } } } },
     "/public/info": { "get": { "summary": "Get public information", "responses": { "200": { "description": "Public information" } } } },
+    "/triage": { "post": { "summary": "Classify one support message with a validated LLM response", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TriageInput" } } } }, "responses": { "200": { "description": "Validated triage result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TriageResult" } } } }, "400": { "$ref": "#/components/responses/BadRequest" }, "422": { "description": "The model response could not be validated" }, "502": { "description": "LLM provider failure" }, "504": { "description": "LLM provider timeout" } } } },
     "/protected/profile": { "get": { "summary": "Get the authenticated user's profile", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Safe user metadata", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Profile" } } } }, "401": { "$ref": "#/components/responses/Unauthorized" } } } },
     "/protected/dashboard": { "get": { "summary": "Get the authenticated user's dashboard", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Dashboard message" }, "401": { "$ref": "#/components/responses/Unauthorized" } } } }
   },
@@ -29,6 +30,8 @@
       "Credentials": { "type": "object", "required": ["email", "password"], "properties": { "email": { "type": "string", "format": "email", "example": "user@example.com" }, "password": { "type": "string", "format": "password", "example": "password123" } } },
       "Tokens": { "type": "object", "properties": { "access_token": { "type": "string" }, "refresh_token": { "type": "string" } } },
       "Profile": { "type": "object", "properties": { "id": { "type": "string" }, "email": { "type": "string" }, "created_at": { "type": "string", "format": "date-time" } } },
+      "TriageInput": { "type": "object", "required": ["text"], "properties": { "text": { "type": "string", "minLength": 1, "maxLength": 2000 } } },
+      "TriageResult": { "type": "object", "required": ["category", "urgency", "confidence", "reason"], "additionalProperties": false, "properties": { "category": { "type": "string", "enum": ["billing", "bug", "feature", "other"] }, "urgency": { "type": "string", "enum": ["low", "normal", "high"] }, "confidence": { "type": "number", "minimum": 0, "maximum": 1 }, "reason": { "type": "string", "maxLength": 240 } } },
       "Error": { "type": "object", "properties": { "error": { "type": "string" } } }
     },
     "responses": {

@@ -4,14 +4,18 @@
   "description": "A beginner-friendly in-memory CRUD API for tasks.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "llm:hello": "node --env-file=.env src/llm/hello.js",
+    "eval:triage": "node evals/run.js"
   },
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.115.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "openai": "^6.25.0",
     "pg": "^8.23.0",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.1.13"
   }
 }
