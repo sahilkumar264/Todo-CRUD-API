@@ -180,3 +180,7 @@ npm run eval:triage
 ```
 
 One real model call logs its prompt and completion token counts, model name, duration, and repair count. Exact cost depends on provider/model pricing; at 10,000 requests/day the main cost drivers are input/output tokens and any repair calls. A production follow-up would add a larger live-provider eval set and a request cache for repeated messages.
+
+## Visual AI Workflow Studio
+
+The separate [workflow-studio/](workflow-studio/) application is a React Flow editor backed by Inngest. Build YES/NO decision nodes, connect their branches, run them as an Inngest workflow, and follow the execution order in the visual log panel. It is independent of this API, preserving the Week 7 assignment intact.
