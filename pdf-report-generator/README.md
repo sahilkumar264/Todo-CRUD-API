@@ -8,6 +8,14 @@ The project reuses `../scraper/output/books.json`, then seeds a local SQLite `bo
 
 The seed script deletes old rows first, so running it twice still leaves exactly 60 records.
 
+## Aggregation SQL
+
+```sql
+SELECT COUNT(*) AS total_books, ROUND(AVG(price), 2) AS average_price FROM books;
+SELECT title, price, rating, url FROM books ORDER BY price DESC, title ASC LIMIT 5;
+SELECT rating, COUNT(*) AS count FROM books GROUP BY rating ORDER BY rating DESC;
+```
+
 ## Setup
 
 ```bash

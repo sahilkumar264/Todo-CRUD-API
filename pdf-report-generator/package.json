@@ -7,6 +7,7 @@
     "start": "node server.js",
     "seed": "node seed.js",
     "check:data": "node check-data.js",
+    "check:report": "node report-data-test.js",
     "render:test": "node render-test.js"
   },
   "dependencies": {
