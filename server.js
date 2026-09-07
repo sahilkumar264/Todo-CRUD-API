@@ -62,7 +62,7 @@ app.get("/public/info", (req, res) => {
   res.json({ message: "Welcome stranger! This info is public." });
 });
 
-function requirePresentedToken(req, res, next) {
+async function requirePresentedToken(req, res, next) {
   const authorization = req.headers.authorization;
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -75,12 +75,22 @@ function requirePresentedToken(req, res, next) {
     return res.status(401).json({ error: "Access token required" });
   }
 
-  req.accessToken = token;
+  const { data, error } = await supabase.auth.getUser(token);
+
+  if (error || !data.user) {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+
+  req.user = data.user;
   next();
 }
 
 app.get("/protected/profile", requirePresentedToken, (req, res) => {
-  res.json({ message: "A token was provided." });
+  res.json({
+    id: req.user.id,
+    email: req.user.email,
+    created_at: req.user.created_at
+  });
 });
 
 app.get("/tasks", async (req, res) => {
