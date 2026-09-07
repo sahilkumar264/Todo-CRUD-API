@@ -1,0 +1,16 @@
+{
+  "name": "pdf-report-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js",
+    "check:data": "node check-data.js",
+    "render:test": "node render-test.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "playwright": "^1.58.2"
+  }
+}
