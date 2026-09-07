@@ -3,6 +3,7 @@ const swaggerUi = require("swagger-ui-express");
 const openapiSpecification = require("./openapi.json");
 require("dotenv").config();
 const { initializeDatabase, pool } = require("./taskRepository");
+const supabase = require("./supabaseClient");
 
 const app = express();
 const PORT = 3000;
