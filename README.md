@@ -188,3 +188,7 @@ The separate [workflow-studio/](workflow-studio/) application is a React Flow ed
 ## PDF report generator
 
 The independent [pdf-report-generator/](pdf-report-generator/) application reuses the Week 5 book dataset to seed SQLite, aggregate a report, render a multipage PDF with Playwright, and serve it through `POST /reports` plus a download link. It is intentionally kept separate from the task API and visual workflow project.
+
+## Background job report API
+
+The independent [background-job/](background-job/) project demonstrates an Inngest worker: its report endpoint returns `202` immediately, status polling changes from pending to done after background work, failed jobs retry automatically, and a cron heartbeat runs every minute.
