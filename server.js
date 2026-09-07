@@ -2,6 +2,8 @@ const express = require("express");
 const Database = require("better-sqlite3");
 const swaggerUi = require("swagger-ui-express");
 const openapiSpecification = require("./openapi.json");
+require("dotenv").config();
+const { initializeDatabase } = require("./taskRepository");
 
 const app = express();
 const PORT = 3000;
@@ -126,6 +128,14 @@ app.delete("/tasks/:id", (req, res) => {
   res.status(204).send();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+async function startServer() {
+  await initializeDatabase();
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error("Could not connect to PostgreSQL:", error.message);
+  process.exit(1);
 });
