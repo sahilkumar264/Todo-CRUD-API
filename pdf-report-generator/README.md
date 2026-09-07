@@ -16,6 +16,10 @@ SELECT title, price, rating, url FROM books ORDER BY price DESC, title ASC LIMIT
 SELECT rating, COUNT(*) AS count FROM books GROUP BY rating ORDER BY rating DESC;
 ```
 
+## PDF layout
+
+The report is rendered by headless Chromium from HTML. Print CSS uses a repeating `<thead>` and `tr { break-inside: avoid; }`, so the long catalogue table remains readable across pages.
+
 ## Setup
 
 ```bash
