@@ -1,0 +1,17 @@
+{
+  "name": "flyrank-a9-polite-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A polite, cached scraper for the Books to Scrape practice sandbox.",
+  "scripts": {
+    "start": "node src/index.js",
+    "test:failure": "node src/index.js --include-broken-url"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.2",
+    "zod": "^4.1.13"
+  }
+}

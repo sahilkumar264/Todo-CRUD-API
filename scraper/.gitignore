@@ -1,0 +1,5 @@
+cache/
+output/books.json
+output/errors.json
+node_modules/
+npm-debug.log*

@@ -127,3 +127,7 @@ The following `psql` result was captured from the running Docker Compose Postgre
 ![PostgreSQL tasks query result](assets/postgres-query-result.svg)
 
 The API endpoint tests from Weeks 2 and 3 still pass because the routes did not change; only the storage layer changed from memory, to SQLite, to Postgres.
+
+## Week 5: polite scraper
+
+The independent Week 5 assignment lives in [`scraper/`](scraper/). It is a Node.js scraper for the Books to Scrape practice sandbox: it caches all HTML, uses an identifying user-agent, waits at least 500 ms between live requests, validates records with Zod, and writes an honest run report. See [the scraper README](scraper/README.md) for its one-command run instructions and the deliberate broken-page test.
