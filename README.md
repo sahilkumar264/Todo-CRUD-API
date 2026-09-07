@@ -1,6 +1,6 @@
 # Todo-CRUD-API
 
-A simple beginner-friendly CRUD API for managing tasks. It uses Node.js and Express, with task data kept in a JavaScript array while the server is running.
+A simple beginner-friendly CRUD API for managing tasks. It uses Node.js, Express, and SQLite so tasks survive server restarts.
 
 ## Features
 
@@ -8,7 +8,7 @@ A simple beginner-friendly CRUD API for managing tasks. It uses Node.js and Expr
 - Create, read, update, and delete tasks
 - Input validation and clear JSON errors
 - Interactive Swagger UI documentation
-- No database or persistent storage
+- SQLite persistence with automatic database setup
 
 ## Technology stack
 
@@ -17,6 +17,7 @@ A simple beginner-friendly CRUD API for managing tasks. It uses Node.js and Expr
 - JavaScript
 - swagger-ui-express
 - OpenAPI 3.0
+- SQLite via better-sqlite3
 
 ## Installation
 
@@ -75,6 +76,20 @@ Content-Type: application/json; charset=utf-8
 
 The Swagger UI is available at <http://localhost:3000/docs> and displays the complete task CRUD API. It includes **Try it out** controls that send requests directly to the local Express server.
 
-## In-memory data
+## SQLite database
 
-Task data is stored only in memory using a JavaScript array. Any created or updated tasks disappear when the server restarts.
+SQLite was chosen because it is a single local file, needs no separate database server, and keeps task data after the API restarts. The database is stored in `tasks.db` at the project root.
+
+`tasks.db` is ignored by Git so every clone starts fresh. When the server starts, it automatically creates the database and `tasks` table if they are missing, then seeds the three example tasks only when the table is empty.
+
+## SQL exploration
+
+During the SQLite exercise, this query returned the number of tasks currently stored in the database:
+
+```sql
+SELECT COUNT(*) FROM tasks;
+```
+
+It returned `4` before the update-and-delete exercise. The complete Stage 4 query record is in [SQL_EXPLORATION.md](SQL_EXPLORATION.md).
+
+The API endpoint tests from Week 2 still pass because SQLite changes only the storage layer; the API request and response shapes remain the same.
