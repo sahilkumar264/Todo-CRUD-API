@@ -32,6 +32,8 @@ curl -i -X POST http://localhost:3100/reports
 curl -o my-bookstore-report.pdf http://localhost:3100/reports/1/file
 ```
 
+Verified locally on 2026-09-07: the API created a PDF with `201`, served it by its `/reports/:id/file` link, and the downloaded file was a real three-page PDF (about 66 KB).
+
 The generation endpoint intentionally waits a few seconds for Chromium to create the PDF. For a large report or many users, I would move rendering to a background job; keeping it in the request is appropriate for this assignment's small dataset.
 
 ## Idempotency
@@ -47,6 +49,18 @@ curl http://localhost:3100/reports
 
 ![First page of generated bookstore report](assets/report-page-1.png)
 
+## API routes
+
+| Method | Route | Result |
+| --- | --- | --- |
+| `GET` | `/health` | Health status |
+| `POST` | `/reports` | Creates a report, or returns today's existing report |
+| `GET` | `/reports` | Lists generated reports |
+| `GET` | `/reports/:id` | Returns report metadata and download link |
+| `GET` | `/reports/:id/file` | Downloads the PDF bytes from disk |
+
+`report.db` and `reports/` are intentionally ignored by Git. They are generated locally by `npm run seed` and `POST /reports`; the code and seed script are the reproducible recipe.
+
 ## Setup
 
 ```bash
@@ -55,4 +69,10 @@ npm install
 npx playwright install chromium
 npm run seed
 npm start
+```
+
+Health check:
+
+```bash
+curl -i http://localhost:3100/health
 ```

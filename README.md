@@ -184,3 +184,7 @@ One real model call logs its prompt and completion token counts, model name, dur
 ## Visual AI Workflow Studio
 
 The separate [workflow-studio/](workflow-studio/) application is a React Flow editor backed by Inngest. Build YES/NO decision nodes, connect their branches, run them as an Inngest workflow, and follow the execution order in the visual log panel. It is independent of this API, preserving the Week 7 assignment intact.
+
+## PDF report generator
+
+The independent [pdf-report-generator/](pdf-report-generator/) application reuses the Week 5 book dataset to seed SQLite, aggregate a report, render a multipage PDF with Playwright, and serve it through `POST /reports` plus a download link. It is intentionally kept separate from the task API and visual workflow project.
