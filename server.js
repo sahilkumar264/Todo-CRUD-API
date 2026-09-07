@@ -2,6 +2,8 @@ const express = require("express");
 
 const app = express();
 const PORT = 3000;
+app.use(express.json());
+
 const tasks = [
   { id: 1, title: "Learn Express", done: false },
   { id: 2, title: "Build CRUD API", done: false },
@@ -33,6 +35,20 @@ app.get("/tasks/:id", (req, res) => {
   }
 
   res.json(task);
+});
+
+app.post("/tasks", (req, res) => {
+  const { title } = req.body;
+
+  if (typeof title !== "string" || title.trim() === "") {
+    return res.status(400).json({ error: "Title is required and must be a non-empty string" });
+  }
+
+  const nextId = tasks.length === 0 ? 1 : Math.max(...tasks.map((task) => task.id)) + 1;
+  const newTask = { id: nextId, title: title.trim(), done: false };
+  tasks.push(newTask);
+
+  res.status(201).json(newTask);
 });
 
 app.listen(PORT, () => {
