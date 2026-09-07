@@ -1,6 +1,6 @@
 # Todo-CRUD-API
 
-A beginner-friendly CRUD API for managing tasks. It uses Node.js, Express, PostgreSQL, and Docker Compose so tasks survive full stack restarts.
+A Dockerized PostgreSQL task API with Supabase Auth. It supports sign up, login, JWT-protected routes, logout, and persistent tasks.
 
 ## Features
 
@@ -9,6 +9,8 @@ A beginner-friendly CRUD API for managing tasks. It uses Node.js, Express, Postg
 - Input validation and clear JSON errors
 - Interactive Swagger UI documentation
 - PostgreSQL persistence with Docker Compose
+- Supabase Auth sign up and login
+- Reusable bearer-token middleware for protected routes
 
 ## Technology stack
 
@@ -19,6 +21,7 @@ A beginner-friendly CRUD API for managing tasks. It uses Node.js, Express, Postg
 - OpenAPI 3.0
 - PostgreSQL via node-postgres (`pg`)
 - Docker and Docker Compose
+- Supabase Auth with @supabase/supabase-js
 
 ## Installation
 
@@ -43,6 +46,8 @@ docker compose down
 
 The Postgres volume keeps task data even after `docker compose down` and `docker compose up`.
 
+Before running, copy `.env.example` to `.env` and set `SUPABASE_URL` and `SUPABASE_KEY` to your own Supabase Project URL and anon/publishable key. Never use a `service_role` or `sb_secret_` key.
+
 Swagger UI: <http://localhost:3000/docs>
 
 ## API endpoints
@@ -56,6 +61,12 @@ Swagger UI: <http://localhost:3000/docs>
 | POST | `/tasks` | Create a task | 201 |
 | PUT | `/tasks/:id` | Update a task title and/or completion state | 200 |
 | DELETE | `/tasks/:id` | Delete a task | 204 |
+| POST | `/auth/signup` | Create a Supabase user account | 201 |
+| POST | `/auth/login` | Log in and receive access/refresh tokens | 200 |
+| POST | `/auth/logout` | Log out with a bearer token | 204 |
+| GET | `/public/info` | Get public information | 200 |
+| GET | `/protected/profile` | Get safe user profile metadata | 200 |
+| GET | `/protected/dashboard` | Get a protected dashboard message | 200 |
 
 ## Status codes
 
@@ -66,6 +77,7 @@ Swagger UI: <http://localhost:3000/docs>
 | 204 | A task was deleted successfully; the response has no body. |
 | 400 | The request body is missing or invalid. |
 | 404 | The requested task does not exist. |
+| 401 | The bearer token is missing, malformed, expired, or invalid. |
 
 ## Example request
 
@@ -84,7 +96,9 @@ Content-Type: application/json; charset=utf-8
 
 ## Swagger UI screenshot
 
-The Swagger UI is available at <http://localhost:3000/docs> and displays the complete task CRUD API. It includes **Try it out** controls that send requests directly to the local Express server.
+The Swagger UI is available at <http://localhost:3000/docs> and displays the complete task and auth API. Click **Authorize**, paste an access token from `/auth/login`, then use **Try it out** on a protected endpoint.
+
+![Swagger UI with bearer authorization](assets/swagger-auth-ui.svg)
 
 ## PostgreSQL database and environment variables
 
